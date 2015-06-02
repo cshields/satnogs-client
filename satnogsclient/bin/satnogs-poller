@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import time
+import logging
 
 from satnogsclient.settings import (SCHEDULER_SLEEP_TIME, NETWORK_API_QUERY_INTERVAL,
                                     NETWORK_API_POST_INTERVAL)
@@ -8,6 +9,7 @@ from satnogsclient.scheduler.tasks import get_jobs, post_data
 
 
 if __name__ == '__main__':
+    logging.basicConfig()
     scheduler.add_job(get_jobs, 'interval', minutes=NETWORK_API_QUERY_INTERVAL)
     scheduler.add_job(post_data, 'interval', minutes=NETWORK_API_POST_INTERVAL)
     scheduler.start()
