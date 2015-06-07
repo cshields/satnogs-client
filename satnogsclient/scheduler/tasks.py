@@ -22,6 +22,8 @@ logger = logging.getLogger('satnogsclient')
 
 
 def spawn_observer(*args, **kwargs):
+    if settings.BBB_STATUS:
+        GPIO.output("P8_11", GPIO.HIGH)
     obj = kwargs.pop('obj')
     tle = {
         'tle0': obj['tle0'],
@@ -51,8 +53,13 @@ def spawn_observer(*args, **kwargs):
         logger.info('Spawning observer worker.')
         observer.observe()
     else:
+        if settings.BBB_STATUS:
+            GPIO.output("P8_11", GPIO.LOW)
+            GPIO.output("P8_7", GPIO.HIGH)
         raise RuntimeError('Error in observer setup.')
 
+    if settings.BBB_STATUS:
+        GPIO.output("P8_11", GPIO.LOW)
 
 def spawn_receiver(*args, **kwargs):
     obj = kwargs.pop('obj')
@@ -102,7 +109,7 @@ def get_jobs():
     """Query SatNOGS Network API to GET jobs."""
 
     if settings.BBB_STATUS:
-        GPIO.output("P8_9", GPIO.HIGH)
+        GPIO.output("P8_11", GPIO.HIGH)
 
     url = urljoin(settings.NETWORK_API_URL, 'jobs/')
     params = {'ground_station': settings.GROUND_STATION_ID}
@@ -115,7 +122,7 @@ def get_jobs():
 
     if not response.status_code == 200:
         if settings.BBB_STATUS:
-            GPIO.output("P8_9", GPIO.LOW)
+            GPIO.output("P8_11", GPIO.LOW)
             GPIO.output("P8_7", GPIO.HIGH)
         raise Exception('Status code: {0} on request: {1}'.format(response.status_code, url))
 
@@ -142,4 +149,4 @@ def get_jobs():
                           kwargs=kwargs)
 
     if settings.BBB_STATUS:
-        GPIO.output("P8_9", GPIO.LOW)
+        GPIO.output("P8_11", GPIO.LOW)
