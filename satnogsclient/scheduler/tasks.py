@@ -15,6 +15,8 @@ from satnogsclient.observer.observer import Observer
 from satnogsclient.receiver import SignalReceiver
 from satnogsclient.scheduler import scheduler
 
+if settings.BBB_STATUS:
+    import Adafruit_BBIO.GPIO as GPIO
 
 logger = logging.getLogger('satnogsclient')
 
@@ -98,6 +100,10 @@ def post_data():
 
 def get_jobs():
     """Query SatNOGS Network API to GET jobs."""
+
+    if settings.BBB_STATUS:
+        GPIO.output("P8_9", GPIO.HIGH)
+
     url = urljoin(settings.NETWORK_API_URL, 'jobs/')
     params = {'ground_station': settings.GROUND_STATION_ID}
     headers = {'Authorization': 'Token {0}'.format(settings.API_TOKEN)}
@@ -108,6 +114,9 @@ def get_jobs():
     response = requests.get(url, params=params, headers=headers, verify=settings.VERIFY_SSL)
 
     if not response.status_code == 200:
+        if settings.BBB_STATUS:
+            GPIO.output("P8_9", GPIO.LOW)
+            GPIO.output("P8_7", GPIO.HIGH)
         raise Exception('Status code: {0} on request: {1}'.format(response.status_code, url))
 
     for job in scheduler.get_jobs():
@@ -131,3 +140,6 @@ def get_jobs():
                           run_date=receiver_start,
                           id='receiver_{0}'.format(job_id),
                           kwargs=kwargs)
+
+    if settings.BBB_STATUS:
+        GPIO.output("P8_9", GPIO.LOW)

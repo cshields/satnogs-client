@@ -7,6 +7,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from satnogsclient import settings
 
+if settings.BBB_STATUS:
+    import Adafruit_BBIO.GPIO as GPIO
+    GPIO.setup("P8_7", GPIO.OUT)
+    GPIO.output("P8_7", GPIO.LOW)
+    GPIO.setup("P8_9", GPIO.OUT)
+    GPIO.output("P8_9", GPIO.LOW)
+    GPIO.setup("P8_11", GPIO.OUT)
+    GPIO.output("P8_11", GPIO.LOW)
 
 jobstores = {
     'default': SQLAlchemyJobStore(url=settings.SQLITE_URL)
