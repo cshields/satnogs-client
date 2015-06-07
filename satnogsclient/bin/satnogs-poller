@@ -3,18 +3,18 @@ import logging
 import time
 
 from satnogsclient.settings import (SCHEDULER_SLEEP_TIME, NETWORK_API_QUERY_INTERVAL,
-                                    NETWORK_API_POST_INTERVAL)
+                                    NETWORK_API_POST_INTERVAL, BBB_STATUS)
 from satnogsclient.scheduler import scheduler
 from satnogsclient.scheduler.tasks import get_jobs, post_data
 
-if settings.BBB_STATUS:
+if BBB_STATUS:
     import Adafruit_BBIO.GPIO as GPIO
 
 logger = logging.getLogger('satnogsclient')
 
 
 if __name__ == '__main__':
-    if settings.BBB_STATUS:
+    if BBB_STATUS:
         GPIO.output("P8_9", GPIO.HIGH)
     interval = NETWORK_API_QUERY_INTERVAL
     msg = 'Registering `get_jobs` periodic task ({0} min. interval)'.format(interval)
@@ -34,8 +34,9 @@ if __name__ == '__main__':
         while True:
             time.sleep(SCHEDULER_SLEEP_TIME)
     except (KeyboardInterrupt, SystemExit):
-        if settings.BBB_STATUS:
+        if BBB_STATUS:
             GPIO.output("P8_9", GPIO.LOW)
             GPIO.output("P8_7", GPIO.LOW)
             GPIO.output("P8_11", GPIO.LOW)
+            GPIO.cleanup()
         scheduler.shutdown()
