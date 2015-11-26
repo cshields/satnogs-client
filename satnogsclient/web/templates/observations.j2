@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SatNOGS Client</title>
+
+    <!-- CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">SatNOGS Client</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="observations">
+		<h1>Scheduled Observations</h1>
+		{% if observations %}
+			<div class="observations-list">
+			  <table class="table table-striped">
+			    <tr>
+			      <th>Satellite</th>
+				  <th>Ascending</th>
+				  <th>Descending</th>
+				  <th>Frequency</th>
+			    </tr>
+			    {% for observation in observations %}
+			      <tr>
+					<td>{{ observation.kwargs['obj']['tle0'] }}</td>
+					<td>{{ observation.kwargs['obj']['start'] }} UTC</td>
+					<td>{{ observation.kwargs['obj']['end'] }} UTC</td>
+					<td>{{ observation.kwargs['obj']['frequency'] }}MHz</td>
+			      </tr>
+			    {% endfor %}
+			  </table>
+			</div>
+	  	{% else %}
+		<div class="observations-empty">
+		  No observations have been scheduled for this ground station. This means that
+		  either none have been scheduled in the website or this ground station has not
+		  polled for its scheduled observations (either because the polling interval
+		  has not been reached yet or due to a technical issue).
+		</div>
+		{% endif %}
+      </div>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/jquery-1.11.3.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  </body>
+</html>
