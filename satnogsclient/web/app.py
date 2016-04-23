@@ -5,6 +5,8 @@ from satnogsclient.scheduler import tasks
 from satnogsclient.observer.commsocket import Commsocket
 import logging
 from flask.json import JSONDecoder
+import telnetlib
+from satnogsclient.settings import (ROT_IP, ROT_PORT)
 
 logger = logging.getLogger('satnogsclient')
 app = Flask(__name__)
@@ -42,8 +44,27 @@ def get_status_info():
     else:
         print 'No observations currently'
 
+    #get rotor status
+    rotor_current = {}
+    try:
+        tn = telnetlib.Telnet(ROT_IP, ROT_PORT)
+        tn.write('p')
+        rotor_response = tn.read_eager()
+        rotor_response = rotor_response.split('\n')
+        rotor_current['azimuth'] = float(rotor_response[0])
+        rotor_current['elevation'] = float(rotor_response[1])
+        rotor_current['status'] = 'OK'
+        tn.close()
+    except:
+        rotor_current['status'] = 'FAILED'
+        rotor_current['azimuth'] = 'NA'
+        rotor_current['elevation'] = 'NA'
+        tn.close()
+
     #return current_pass_json
-    return jsonify(observation=dict(current=current_pass_json, scheduled=scheduled_pass_json))
+    return jsonify(observation=dict(current=current_pass_json,
+                                    scheduled=scheduled_pass_json,
+                                    rotor=rotor_current))
 
 
 @app.route('/')

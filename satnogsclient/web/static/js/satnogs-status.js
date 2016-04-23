@@ -36,6 +36,7 @@ function update_observations(data,param) {
     var json_data = data;
     var current_obs = json_data['observation']['current'];
     var scheduled_obs = json_data['observation']['scheduled'];
+    var rotor_status = json_data['observation']['rotor'];
     var tle1_current = current_obs["tle1"].split(' ');
     var tle2_current = current_obs["tle2"].split(' ');
 
@@ -89,6 +90,15 @@ function update_observations(data,param) {
     var tr = "<tr><td colspan='4'>No observations scheduled</td></tr>";
     $('#scheduled-observation-table').append(tr);
   }
+
+  //Update rotor status
+    if (rotor_status["status"] === "OK") {
+      jQuery("#rotor-status").removeClass("label-danger").addClass("label-success");
+      document.getElementById("rotor-az").innerHTML = rotor_status['azimuth'];
+      document.getElementById("rotor-el").innerHTML = rotor_status['elevation'];
+    } else {
+      jQuery("#rotor-status").removeClass("label-success").addClass("label-danger");
+    }
 }
 
 function query_status_info(JSONData, localMode, url, param) {
